@@ -19,7 +19,7 @@ has moved on!
 
 At the end of the play return your result and it will be printed out to see
 how accurate you were:
- 
+
 Here is an example where we always guess 'ROMEO':
 
 def strat_empty(play):
@@ -66,7 +66,7 @@ Empty strategy (always ROMEO):
    5     2      0.0      8.0      0.0%
    5     3      6.0     59.0      9.2%
               163.0    676.0     19.4%
-              
+
 Hmmm 19.4 %, can you do better?
 
 There is one other example here which just guesses at random with predictably
@@ -86,8 +86,7 @@ Created on 18 Mar 2015
 """
 import random
 
-from Exercises.RomeoAndJuliet.util import parser
-from Exercises.RomeoAndJuliet.util import result
+from Advanced.RomeoAndJuliet.util import parser, result
 import MarkovChain
 
 #----------------- Strategies ----------------
@@ -186,9 +185,32 @@ def strat_markov_chain(play):
                     # Record the transition
                     if len(actors_seen):
                         mc.add(actors_seen[-1], actual_actor)
-                    actors_seen.append(actual_actor) 
+                    actors_seen.append(actual_actor)
     return ret_val
-        
+
+def strat_cheeky(play):
+    """ Playing cheekily. """
+    ret_val = result.Result()
+    for act in play.gen_acts():
+        for scene in act.gen_scenes():
+            ret_val.set_act_scene(act, scene)
+            while True:
+                #--------- Your code starts here ------
+                if 'line' not in locals():
+                    line = 0
+
+                try:
+                    my_choice = scene._actors[line]
+                    line += 1
+                except IndexError: # End of scene reached.
+                    my_choice = None
+                    line = 0
+                #--------- Your code ends here ------
+                actual_actor = ret_val.guess(my_choice)
+                if actual_actor is None:
+                    break
+    return ret_val
+
 def main():
     play = parser.get_play()
     print 'Empty strategy (always ROMEO):'
@@ -207,7 +229,10 @@ def main():
     result = strat_markov_chain(play)
     print result
     print
-
+    print 'Cheeky:'
+    result = strat_cheeky(play)
+    print result
+    print
 
 if __name__ == '__main__':
     main()
